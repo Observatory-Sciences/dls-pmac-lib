@@ -2,12 +2,12 @@ import optparse, re, sys, os
 from optparse import OptionParser
 
 class clsPmacParser:
-        '''A class that pre-processes Delta-Tau 'pmc' files by making macro
+	'''A class that pre-processes Delta-Tau 'pmc' files by making macro
            substitutions and expanding included files (and nested include
            files as deep as necessary).  It may optionally
            strip comments and insert simulation debug information. '''
 	def __init__(self, includePaths = None):
-                '''Create an instance of the preprocessor.  Specify the paths
+		'''Create an instance of the preprocessor.  Specify the paths
                    to search for include files using the 'includePaths' parameter
                    which should be a list of strings, each one specifying a
                    path (the current directory is automatically included in
@@ -28,7 +28,7 @@ class clsPmacParser:
 		self.getCommand = re.compile(r'^.*(?=;)|^.*$')	# find command in a line and ignore any comments
 	
 	def parse(self, pmcFileName, defines = None, comments = False, debug = False):
-                '''Expand a 'pmc' file.  The 'pmcFileName' is opened and processed into
+		'''Expand a 'pmc' file.  The 'pmcFileName' is opened and processed into
                    expanded text which is returned.  An map of predefined macro expansions
                    may be passed ('defines'), along with the booleans 'comments' and 'debug'
                    which control the stripping of comments and the insertion of simulation
@@ -40,7 +40,7 @@ class clsPmacParser:
 		try:
 			self.fPtr = open(pmcFileName, 'r')
 		except:
-			print "Error: could not open file: %s"%(pmcFileName)
+			print("Error: could not open file: %s"%(pmcFileName))
 			return None
 			
 		self.includePaths.insert(0, os.path.dirname(os.path.abspath(pmcFileName)))
@@ -82,11 +82,11 @@ class clsPmacParser:
 							#print "Found file in path: %s"%(path)
 							break
 					if not foundFileInPaths:
-						print ";WARNING: Could not find include file: %s"%repr(includeFile)
+						print(";WARNING: Could not find include file: %s"%repr(includeFile))
 						self.output.append('')
 						continue
 						
-					print ";Parsing include file: %s"%(includeFile)
+					print(";Parsing include file: %s"%(includeFile))
 					p = clsPmacParser(self.includePaths)
 					includeLines = p.parse(includeFile, defines = defines, comments = comments, debug = debug)
 					if includeLines:
@@ -106,7 +106,7 @@ class clsPmacParser:
 		#print defines
 	
 	def substitute_macros(self,macro_dict,text):
-                '''Expands any macros defined by 'macro_dict' in the given 'text'.
+		'''Expands any macros defined by 'macro_dict' in the given 'text'.
                    The expanded text is returned.'''
 		out_text = text
 		sorted_macros = [(len(x),x) for x in macro_dict.keys()]
@@ -117,12 +117,12 @@ class clsPmacParser:
 		return out_text
 			
 	def saveOutput(self, outputFile = None):
-                '''Writes the processed output to the specified file.'''
+		'''Writes the processed output to the specified file.'''
 		if outputFile:
 			try:
 				self.oPtr = open(outputFile, 'w')
 			except:
-				print "Error: Could not open output file for write access."
+				print("Error: Could not open output file for write access.")
 				return None
 
 		if self.oPtr:
@@ -132,7 +132,7 @@ class clsPmacParser:
 		else:
 			for line in self.output:
 				#print [line]
-				print line
+				print(line)
 		return 0
 		
 

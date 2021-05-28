@@ -7,7 +7,7 @@ class IOPmacSentNullError(IOError):
 
 class RemotePmacInterface:
 	'''This class provides a common interface to a remote PMAC. It provides methods
-           to connect to the PMAC (e.g. via a Telnet terminal server
+	   to connect to the PMAC (e.g. via a Telnet terminal server
 	   session or Ethernet), to disconnect, and to issue commands. It provides
            methods for some basic axis commands (e.g. move/jog axis etc.).  It is
            a base class that should not be instantiated directly.'''
@@ -43,7 +43,7 @@ class RemotePmacInterface:
 		self.semaphore = threading.Semaphore()
 
 		self.isConnectionOpen = False
-                self.timeout = timeout
+		self.timeout = timeout
 
 		# Use the getter self.isModelGeobrick() to access this. The value is None if uninitialised.
 		self._isModelGeobrick = None
@@ -94,11 +94,11 @@ class RemotePmacInterface:
 		# Submit the command to the low level function _sendCommand().
 		# If I/O with the PMAC fails, return as a failure case.
 		command = str(command)
-                doubleTimeout = self.commandNeedsDoubleTimeout(command)
+		doubleTimeout = self.commandNeedsDoubleTimeout(command)
 		(success, failure) = (True, False)
 		try:
 			response = self._sendCommand(command, shouldWait = shouldWait, doubleTimeout = doubleTimeout)
-                except IOPmacSentNullError, e:
+		except IOPmacSentNullError as e:
                         # On the Ethernet interface the SAVE command responds
                         # with '\x00' if it has changes to write, so in this 
                         # case we suppress the error on the SAVE command 
@@ -106,11 +106,11 @@ class RemotePmacInterface:
                         # to mask a genuine problem.   
                         if doubleTimeout:
                                 if self.verboseMode:
-                                        print "The PMAC returned a NULL character, probably due to sending a SAVE command - command was %r" % command
+                                        print("The PMAC returned a NULL character, probably due to sending a SAVE command - command was %r" % command)
                                 response = ""
                         else:
                                 return ('I/O error during comm with PMAC: %s' % str(e), failure)
-		except IOError, e:
+		except IOError as e:
 			return ('I/O error during comm with PMAC: %s' % str(e), failure)
 		return (response, success)
 
@@ -191,7 +191,7 @@ class RemotePmacInterface:
 	def _getNumberOfMacroStationAxes(self):
 		macroIcAddresses = self.getIVars(0, [20,21,22,23])  # access I20..23
 		if self.verboseMode:
-			print 'Got MACRO IC station base addresses: %s ($0 means not present)' % str(macroIcAddresses)
+			print('Got MACRO IC station base addresses: %s ($0 means not present)' % str(macroIcAddresses))
 		controllableAxesCount = 0
 		for i in range(4):
 			if macroIcAddresses[i] != '$0':
@@ -206,7 +206,7 @@ class RemotePmacInterface:
 			else:
 				self._numAxes = self._getNumberOfMacroStationAxes()
 		if self.verboseMode:
-			print 'Total number of axes is %d.' % self._numAxes
+			print('Total number of axes is %d.' % self._numAxes)
 		return self._numAxes
 
 	def checkAxisIsInRange(self, axis):
@@ -320,7 +320,7 @@ class RemotePmacInterface:
 		# Acquire the semaphore controlling access to the connection
 		self.semaphore.acquire()
 		if self.verboseMode:
-			print '\n\n\n\nGot the semaphore!\n\n\n\n'
+			print('\n\n\n\nGot the semaphore!\n\n\n\n')
 
 		for i, cmd in enumerate(cmdLst):
 			# Send one line from to the controller.
@@ -338,17 +338,17 @@ class RemotePmacInterface:
 				# user cancelled operation
 				self.semaphore.release()
 				if self.verboseMode:
-					print '\n\n\n\nReleased the semaphore because of cancellation!\n\n\n\n'
+					print('\n\n\n\nReleased the semaphore because of cancellation!\n\n\n\n')
 				return
 
 		# Release the semaphore controlling access to the connection
 		self.semaphore.release()
 		if self.verboseMode:
-			print '\n\n\n\nReleased the semaphore!\n\n\n\n'
+			print('\n\n\n\nReleased the semaphore!\n\n\n\n')
 
         # Controls whether to wait for double the normal timeout for this 
         # message. Currently only used for the SAVE command.
-        def commandNeedsDoubleTimeout(self, command):
+	def commandNeedsDoubleTimeout(self, command):
                 return 'SAVE' in command.upper()
 
 	# Jog incrementally
@@ -413,11 +413,11 @@ class RemotePmacInterface:
 
 	def testSendCommand(self):
 		(str, code) = self.sendCommand('i20')
-		print 'i20: %r' % str
+		print('i20: %r' % str)
 		(str, code) = self.sendCommand('nonsense')
-		print 'nonsense: %r' % str
+		print('nonsense: %r' % str)
 		(str, code) = self.sendCommand('i20..23')
-		print 'i20..23: %r' % str
+		print('i20..23: %r' % str)
 
 	# ---------------------------------------------------------- Tests ----------------------------------------------------------
 	# A very basic test framework. Prints out test results onto standard output.
@@ -426,21 +426,21 @@ class RemotePmacInterface:
 	def testGetAxisMacroStationNumber(self):
 		for i in range(1,33):
 			try:
-				print 'pmac.getAxisMacroStationNumber(%d) returns %s.' % (i, repr(self.getAxisMacroStationNumber(i)))
-			except Exception, e:
-				print 'pmac.getAxisMacroStationNumber(%d) raised %s' % (i, str(e))
+				print('pmac.getAxisMacroStationNumber(%d) returns %s.' % (i, repr(self.getAxisMacroStationNumber(i))))
+			except Exception as e:
+				print('pmac.getAxisMacroStationNumber(%d) raised %s' % (i, str(e)))
 
 	def testIsMacroStationAxis(self):
 		for i in range(1,33):
 			try:
-				print 'pmac.isMacroStationAxis(%d) returns %s.' % (i, repr(self.isMacroStationAxis(i)))
-			except Exception, e:
-				print 'pmac.isMacroStationAxis(%d) raised %s' % (i, str(e))
+				print('pmac.isMacroStationAxis(%d) returns %s.' % (i, repr(self.isMacroStationAxis(i))))
+			except Exception as e:
+				print('pmac.isMacroStationAxis(%d) raised %s' % (i, str(e)))
 
 	def runTests(self):
-		print '______________________________________'
+		print('______________________________________')
 		self.testSendCommand()
-		print 'pmac.isModelGeobrick() returns %s' % str(self.isModelGeobrick())
+		print('pmac.isModelGeobrick() returns %s' % str(self.isModelGeobrick()))
 		self.getNumberOfAxes()
 		self.testIsMacroStationAxis()
 		self.testGetAxisMacroStationNumber()
@@ -466,10 +466,10 @@ class PmacEthernetInterface(RemotePmacInterface):
 		# Attempt to establish a connection to the remote host
 		try:
 			if self.verboseMode:
-				print 'Connecting a socket to host "%s" using port %d' % (self.hostname, self.port)
+				print('Connecting a socket to host "%s" using port %d' % (self.hostname, self.port))
 			self.sock.connect( (self.hostname, self.port) )
 			if self.verboseMode:
-				print 'Connected to host "%s" on port %d' % (self.hostname, self.port)
+				print('Connected to host "%s" on port %d' % (self.hostname, self.port))
 		except socket.gaierror:
 			return 'ERROR: unknown host'
 		except:
@@ -482,13 +482,13 @@ class PmacEthernetInterface(RemotePmacInterface):
 		try:
 			response = self._sendCommand('i6=1 i3=2 ver')
 			if self.verboseMode:
-				print '\tDevice responding.' + response
+				print('\tDevice responding.' + response)
 		except IOError:
 			self.disconnect()
 			return 'Device failed to respond to a "ver" command'
 		if not re.match('^\d+\.\d+\s*\r\x06$',response):
 			# if the response is not of the form "1.945  \r\x06" then we're not talking to a PMAC!
-			print response
+			print(response)
 			self.disconnect()
 			return 'Device did not respond correctly to a "ver" command'
 
@@ -501,7 +501,7 @@ class PmacEthernetInterface(RemotePmacInterface):
 			self.semaphore.release()
 			self.isConnectionOpen = False
 			if self.verboseMode:
-				print 'Disconnected from ' + self.hostname
+				print('Disconnected from ' + self.hostname)
 
 	def _sendCommand(self, command, shouldWait = True, doubleTimeout = False):
 		# Add a TCP/IP header to the packet. This header is described in the "VR_PMAC_GETRESPONSE" section on page 26
@@ -510,7 +510,7 @@ class PmacEthernetInterface(RemotePmacInterface):
 		def getresponseRequest(command):
 			assert type(command) == str
 			headerStr = struct.pack('8B',0x40,0xBF,0x0,0x0,0x0,0x0,0x0,len(command))
-			wrappedCommand = headerStr + command
+			wrappedCommand = headerStr + command.encode('utf-8')
 			return wrappedCommand
 
 		def getbufferRequest():
@@ -522,28 +522,28 @@ class PmacEthernetInterface(RemotePmacInterface):
 			# SIGINT has only occured with a Clipper board; the reason for this is unknown.
 			while True:
 				try:
-					return self.sock.recv(char_num) # wait for and read the response from PMAC (will be at most 1400 chars)
-				except socket.error, e:
+					return self.sock.recv(char_num).decode() # wait for and read the response from PMAC (will be at most 1400 chars)
+				except socket.error as e:
 					if e.errno != errno.EINTR:
 						raise
 
 		try:
 			try:
-                                if shouldWait:
+				if shouldWait:
 					self.semaphore.acquire()
-                                if doubleTimeout:
-                                        self.sock.settimeout(self.timeout*2)
-                                else:
-                                        self.sock.settimeout(self.timeout)
+				if doubleTimeout:
+					self.sock.settimeout(self.timeout*2)
+				else:
+					self.sock.settimeout(self.timeout)
 
 				self.sock.sendall(getresponseRequest(command)) # attept to send the whole packet
 				if self.verboseMode:
-					print 'Sent out: %r' % command
+					print('Sent out: %r' % command)
 
 				returnStr = receiveReliably(2048) # wait for and read the response from PMAC (will be at most 1400 chars)
 
 				if self.verboseMode:
-                                        print 'Received: %r' % returnStr
+                                        print('Received: %r' % returnStr)
 
 				short_response = len(returnStr) < 1400
 
@@ -565,15 +565,15 @@ class PmacEthernetInterface(RemotePmacInterface):
 				# 	returnStr[len(returnStr) - 1] == 0x0D (CTRL_M, '\r') => timeout or error
 				# 	neither => continue receiving data
 				enterLoop = (returnStr[len(returnStr) - 1] != '\x06')
-                                enterLoop = enterLoop and (returnStr[len(returnStr) - 1] != '\x0D')
+				enterLoop = enterLoop and (returnStr[len(returnStr) - 1] != '\x0D')
 				while enterLoop:
 					self.sock.sendall(getbufferRequest())
-                                        tmp = self.sock.recv(2048)
-                                        if len(tmp) < 1400 and tmp[len(tmp) - 1] == '\x00':
+					tmp = self.sock.recv(2048)
+					if len(tmp) < 1400 and tmp[len(tmp) - 1] == '\x00':
 						raise IOPmacSentNullError('Connection to PMAC lost')
 					returnStr = returnStr + tmp
 					enterLoop = (returnStr[len(returnStr) - 1] != '\x06')
-                                        enterLoop = enterLoop and (returnStr[len(returnStr) - 1] != '\x0D')
+					enterLoop = enterLoop and (returnStr[len(returnStr) - 1] != '\x0D')
 
 				if returnStr[len(returnStr) - 1] == '\x0D': # stopped looping because of either timeout or error
 					raise IOError('PMAC communication error')
@@ -583,8 +583,8 @@ class PmacEthernetInterface(RemotePmacInterface):
 
 				return returnStr
 			finally:
-                                if doubleTimeout:
-                                        self.sock.settimeout(self.timeout)
+				if doubleTimeout:
+					self.sock.settimeout(self.timeout)
 				if shouldWait:
 					self.semaphore.release()
 		except socket.error:
@@ -622,13 +622,13 @@ class PmacTelnetInterface(RemotePmacInterface):
 			except:
 				if sys.exc_type == socket.gaierror:
 					retStr = "ERROR: could not open telnet session. Unknown host or addressing problem."
-					print retStr
+					print(retStr)
 				elif sys.exc_type == socket.error:
 					retStr = "ERROR: could not open telnet session. Connection refused."
-					print retStr
+					print(retStr)
 				else:
 					retStr = "ERROR: Could not open telnet session."
-					print retStr
+					print(retStr)
 				retStr += "\nException thrown: "+str(sys.exc_type)
 				self.tn.close()
 				return retStr
@@ -656,9 +656,9 @@ class PmacTelnetInterface(RemotePmacInterface):
 	# the expected result returned by the controler.
 	def _sendCommand( self, command, shouldWait = True, doubleTimeout = False):
 		command = str(command)
-                messageTimeout = self.timeout
-                if doubleTimeout:
-                        messageTimeout *= 2
+		messageTimeout = self.timeout
+		if doubleTimeout:
+			messageTimeout *= 2
 
 		try:
 			try:
@@ -669,25 +669,25 @@ class PmacTelnetInterface(RemotePmacInterface):
                                 # any previous messages (this can happen if
                                 # the previous message timed out before 
                                 # receiving its reply).
-                                if self.tn.sock_avail():
-                                        orphanedMsg = self.tn.read_very_eager()
-                                        if self.verboseMode:
-                                                print "Received unexpected output from PMAC, discarding: %r" % orphanedMsg
+				if self.tn.sock_avail():
+					orphanedMsg = self.tn.read_very_eager()
+					if self.verboseMode:
+						print("Received unexpected output from PMAC, discarding: %r" % orphanedMsg)
 
 				# write the command to PMAC
 				self.tn.write( command  + '\r\n')
 				if self.verboseMode:
-					print 'Sent out: %r' % command
+					print('Sent out: %r' % command)
 
 				# expect a response from the PMAC, satisfying one of the regexes in self.lstRegExps
 				(returnMatchNo, returnMatch, returnStr) = self.tn.expect( self.lstRegExps, messageTimeout)
 				if self.verboseMode:
-                                        print 'Received: %r' % returnStr
+                                        print('Received: %r' % returnStr)
 
-                        finally:
-                                if shouldWait:
-                                        self.semaphore.release()
-		except socket.error, e:
+			finally:
+				if shouldWait:
+					self.semaphore.release()
+		except socket.error as e:
 			errorMsg = e[1]
 			raise IOError('Communication with PMAC broken: %s' % errorMsg)
 		except:
@@ -739,9 +739,9 @@ class PmacSerialInterface(RemotePmacInterface):
 		# Check flow of serial comm by trying a basic "ver" command (which returns firmware version)
 		try:
 			response = self._sendCommand("ver")
-		except IOError, e:
+		except IOError as e:
 			self.isConnectionOpen = False
-			print e.strerror
+			print(e.strerror)
 			raise e
 			#return "Error: did not get expected response from PMAC command \"ver\".\n\nMaybe someone is connected to the port already,\nor you are connecting to a wrong serial port,\nor the port is misconfigured (e.g. wrong baud rate)."
 
@@ -773,7 +773,7 @@ class PmacSerialInterface(RemotePmacInterface):
 				if self.serial.inWaiting():
 					orphanedMsg = self.serial.readline()
 					if self.verboseMode:
-						print "Received unexpected output from PMAC, discarding: %r" % orphanedMsg
+						print("Received unexpected output from PMAC, discarding: %r" % orphanedMsg)
 
 				# write the command to PMAC
 				command = command  + '\r'
@@ -782,7 +782,7 @@ class PmacSerialInterface(RemotePmacInterface):
 					# need to enforce pause to allow for transmission time of characters (for Clipper at least)
 					# time.sleep(self.transmission_delay)
 				if self.verboseMode:
-					print 'Sent out: %r' % command				
+					print('Sent out: %r' % command				)
 		
 				# read reply one character at a time, stopping at terminate char '\x06' or if timeout is exceeded
 				# N.B. probably could do this more robustly/quickly with file i/o or built-ins 
@@ -796,20 +796,20 @@ class PmacSerialInterface(RemotePmacInterface):
 
 				if time.time()-read_start > messageTimeout:
 					self.n_timeouts = self.n_timeouts + 1
-					print 'Warning: Communication Timeout! (#%s)' % self.n_timeouts	
+					print('Warning: Communication Timeout! (#%s)' % self.n_timeouts	)
 
 				if returnMatchNo == [0]:
-					print "PMAC returned error: %s (%s)" % (returnStr[1:-1], self.PMAC_errors[returnStr[1:-1]])
+					print("PMAC returned error: %s (%s)" % (returnStr[1:-1], self.PMAC_errors[returnStr[1:-1]]))
 				elif self.verboseMode:
 					if not returnMatchNo:					
-						print 'Bad or no response from PMAC: "%s"' % returnStr		
+						print('Bad or no response from PMAC: "%s"' % returnStr)
 					else:					
-						print 'Received: %r (total duration %s seconds, %s)' % (returnStr, str(time.time()-comms_start), returnMatchNo)
+						print('Received: %r (total duration %s seconds, %s)' % (returnStr, str(time.time()-comms_start), returnMatchNo))
 				self.last_comm_time = time.time()
 			finally:
 				if shouldWait:
 					self.semaphore.release()
-		except serial.SerialException, e:
+		except serial.SerialException as e:
 			errorMsg = e
 			raise IOError('Communication with PMAC broken: %s' % errorMsg)
 

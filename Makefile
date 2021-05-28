@@ -1,7 +1,8 @@
 # DLS environment settings
-PREFIX := $(shell pwd)/prefix
-PYTHON = dls-python
-PYUIC = pyuic4
+#PREFIX := $(shell pwd)/prefix
+PREFIX = /home/dlscontrols/dls_pmac/venv
+PYTHON = dls-python3
+PYUIC = pyuic5
 
 ## Mac OS X settings.
 #PYTHON = python2.6
