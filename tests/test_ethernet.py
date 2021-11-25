@@ -1,15 +1,13 @@
 import unittest
 from mock import patch, Mock
-import sys
 
-sys.path.append("/home/dlscontrols/bem-osl/dls-pmac-lib/dls_pmaclib")
-import dls_pmacremote
+import dls_pmaclib.dls_pmacremote
 import socket
 
 
 class TestEthernetInterface(unittest.TestCase):
     def setUp(self):
-        self.obj = dls_pmacremote.PmacEthernetInterface()
+        self.obj = dls_pmaclib.dls_pmacremote.PmacEthernetInterface()
         self.obj.hostname = "test"
         self.obj.port = 1234
         self.obj.verboseMode = False
@@ -32,7 +30,7 @@ class TestEthernetInterface(unittest.TestCase):
         ret = self.obj.connect()
         assert ret == "ERROR: hostname or port number not set"
 
-    @patch("dls_pmacremote.PmacEthernetInterface._sendCommand")
+    @patch("dls_pmaclib.dls_pmacremote.PmacEthernetInterface._sendCommand")
     @patch("socket.socket")
     def test_connects(self, mock_socket, mock_response):
         mock_response.return_value = "1.945  \r\x06"
@@ -47,8 +45,8 @@ class TestEthernetInterface(unittest.TestCase):
         mock_response.assert_called_with("i6=1 i3=2 ver")
         assert self.obj.isConnectionOpen == True
 
-    @patch("dls_pmacremote.PmacEthernetInterface.disconnect")
-    @patch("dls_pmacremote.PmacEthernetInterface._sendCommand")
+    @patch("dls_pmaclib.dls_pmacremote.PmacEthernetInterface.disconnect")
+    @patch("dls_pmaclib.dls_pmacremote.PmacEthernetInterface._sendCommand")
     @patch("socket.socket")
     def test_incorrect_response(self, mock_socket, mock_response, mock_disconnect):
         mock_response.return_value = "incorrect"
@@ -64,8 +62,8 @@ class TestEthernetInterface(unittest.TestCase):
         assert mock_disconnect.called
         assert ret == 'Device did not respond correctly to a "ver" command'
 
-    @patch("dls_pmacremote.PmacEthernetInterface.disconnect")
-    @patch("dls_pmacremote.PmacEthernetInterface._sendCommand")
+    @patch("dls_pmaclib.dls_pmacremote.PmacEthernetInterface.disconnect")
+    @patch("dls_pmaclib.dls_pmacremote.PmacEthernetInterface._sendCommand")
     @patch("socket.socket")
     def test_no_response(self, mock_socket, mock_sendcmd, mock_disconnect):
         mock_instance = Mock()

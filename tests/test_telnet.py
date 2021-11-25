@@ -1,14 +1,12 @@
 import unittest
 from mock import patch, Mock
-import sys
 
-sys.path.append("/home/dlscontrols/bem-osl/dls-pmac-lib/dls_pmaclib")
-import dls_pmacremote
+import dls_pmaclib.dls_pmacremote
 
 
 class TestTelnetInterface(unittest.TestCase):
     def setUp(self):
-        self.obj = dls_pmacremote.PmacTelnetInterface()
+        self.obj = dls_pmaclib.dls_pmacremote.PmacTelnetInterface()
         self.obj.hostname = "hostname"
         self.obj.port = 123
         self.obj.verboseMode = False
@@ -24,7 +22,7 @@ class TestTelnetInterface(unittest.TestCase):
         assert mock_telnet.called
         assert ret == "ERROR: Could not open telnet session. No hostname set."
 
-    @patch("dls_pmacremote.PmacTelnetInterface._sendCommand")
+    @patch("dls_pmaclib.dls_pmacremote.PmacTelnetInterface._sendCommand")
     @patch("telnetlib.Telnet")
     def test_connects(self, mock_telnet, mock_sendcmd):
         mock_instance = Mock()
@@ -37,7 +35,7 @@ class TestTelnetInterface(unittest.TestCase):
         assert ret == None
         assert self.obj.isConnectionOpen == True
 
-    @patch("dls_pmacremote.log")
+    @patch("dls_pmaclib.dls_pmacremote.log")
     @patch("telnetlib.Telnet")
     def test_connect_exception(self, mock_telnet, mock_log):
         mock_instance = Mock()

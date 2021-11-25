@@ -1,10 +1,7 @@
 import unittest
 from mock import patch
-import sys
-
-sys.path.append("/home/dlscontrols/bem-osl/dls-pmac-lib/dls_pmaclib")
-from dls_pmcpreprocessor import ClsPmacParser
 import os
+from dls_pmaclib.dls_pmcpreprocessor import ClsPmacParser
 
 
 class TestPmcPreprocessor(unittest.TestCase):
@@ -60,7 +57,7 @@ class TestPmcPreprocessorInclude(unittest.TestCase):
         self.f.close()
         self.obj = ClsPmacParser()
 
-    @patch("dls_pmcpreprocessor.log")
+    @patch("dls_pmaclib.dls_pmcpreprocessor.log")
     def test_parse_include(self, mock_log):
         ret = self.obj.parse(pmcFileName=self.test_file)
         assert ret == ["", ""]

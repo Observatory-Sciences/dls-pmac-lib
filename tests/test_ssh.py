@@ -1,16 +1,14 @@
 import unittest
 from mock import patch, Mock
-import sys
 
-sys.path.append("/home/dlscontrols/bem-osl/dls-pmac-lib/dls_pmaclib")
-import dls_pmacremote
+import dls_pmaclib.dls_pmacremote
 import paramiko
 import types
 
 
 class TestSshInterface(unittest.TestCase):
     def setUp(self):
-        self.obj = dls_pmacremote.PPmacSshInterface()
+        self.obj = dls_pmaclib.dls_pmacremote.PPmacSshInterface()
         self.obj.isConnectionOpen = False
         self.obj.hostname = "test"
         self.obj.port = 22
@@ -19,8 +17,8 @@ class TestSshInterface(unittest.TestCase):
         assert self.obj.client == None
         assert self.obj.num_recv_bytes == 8192
 
-    @patch("dls_pmacremote.PPmacSshInterface.client.invoke_shell")
-    @patch("dls_pmacremote.PPmacSshInterface.client")
+    @patch("dls_pmaclib.dls_pmacremote.PPmacSshInterface.client.invoke_shell")
+    @patch("dls_pmaclib.dls_pmacremote.PPmacSshInterface.client")
     def test_start_gpascii(self, mock_client, mock_gpascii):
         mock_instance = Mock()
         mock_instance.send.return_value = None
@@ -41,8 +39,8 @@ class TestSshInterface(unittest.TestCase):
         assert self.obj.connect() == "ERROR: hostname not set"
 
     # when obj.connect() called, SSHClient object is initialised
-    @patch("dls_pmacremote.PPmacSshInterface.sendCommand")
-    @patch("dls_pmacremote.PPmacSshInterface.start_gpascii")
+    @patch("dls_pmaclib.dls_pmacremote.PPmacSshInterface.sendCommand")
+    @patch("dls_pmaclib.dls_pmacremote.PPmacSshInterface.start_gpascii")
     @patch("paramiko.client.SSHClient.connect")
     @patch("paramiko.AutoAddPolicy")
     @patch("paramiko.client.SSHClient.set_missing_host_key_policy")
@@ -125,7 +123,7 @@ class TestSshInterface(unittest.TestCase):
         assert self.obj.isConnectionOpen == False
         assert self.obj.client.close.called
 
-    @patch("dls_pmacremote.PPmacSshInterface.getPmacModelCode")
+    @patch("dls_pmaclib.dls_pmacremote.PPmacSshInterface.getPmacModelCode")
     def test_get_pmac_model(self, mock_getcode):
         mock_getcode.return_value = 604020
         assert self.obj.getPmacModel() == "Power PMAC UMAC"
@@ -135,7 +133,7 @@ class TestSshInterface(unittest.TestCase):
         self.obj._pmacModelName = "name"
         assert self.obj.getPmacModel() == "name"
 
-    @patch("dls_pmacremote.PPmacSshInterface.getPmacModelCode")
+    @patch("dls_pmaclib.dls_pmacremote.PPmacSshInterface.getPmacModelCode")
     def test_get_pmac_model_unsupported(self, mock_get_model_code):
         mock_get_model_code.return_value = 0
         with self.assertRaises(ValueError):
@@ -143,13 +141,13 @@ class TestSshInterface(unittest.TestCase):
         assert self.obj._pmacModelName == None
         assert mock_get_model_code.called
 
-    @patch("dls_pmacremote.PPmacSshInterface.sendCommand")
+    @patch("dls_pmaclib.dls_pmacremote.PPmacSshInterface.sendCommand")
     def test_get_pmac_model_code(self, mock_send_cmd):
         mock_send_cmd.return_value = ("123456", True)
         assert self.obj.getPmacModelCode() == 123456
         mock_send_cmd.assert_called_with("cid")
 
-    @patch("dls_pmacremote.PPmacSshInterface.sendCommand")
+    @patch("dls_pmaclib.dls_pmacremote.PPmacSshInterface.sendCommand")
     def test_get_number_axes(self, mock_send_cmd):
         mock_send_cmd.return_value = ("5", True)
         assert self.obj.getNumberOfAxes() == 4

@@ -1,16 +1,14 @@
 import unittest
 import re
 from mock import patch, Mock
-import sys
 
-sys.path.append("/home/dlscontrols/bem-osl/dls-pmac-lib/dls_pmaclib")
-import dls_pmacremote
+import dls_pmaclib.dls_pmacremote
 import serial
 
 
 class TestSerialInterface(unittest.TestCase):
     def setUp(self):
-        self.obj = dls_pmacremote.PmacSerialInterface()
+        self.obj = dls_pmaclib.dls_pmacremote.PmacSerialInterface()
         self.obj.hostname = "hostname"
         self.obj.port = 1234
         self.obj.verboseMode = False
@@ -18,7 +16,7 @@ class TestSerialInterface(unittest.TestCase):
     def test_init(self):
         assert len(self.obj.lstRegExps) == 5
 
-    @patch("dls_pmacremote.PmacSerialInterface._sendCommand")
+    @patch("dls_pmaclib.dls_pmacremote.PmacSerialInterface._sendCommand")
     @patch("serial.Serial")
     def test_connects(self, mock_serial, mock_sendcmd):
         assert self.obj.connect() == None
@@ -62,7 +60,7 @@ class TestSerialInterface(unittest.TestCase):
         )
         assert self.obj.isConnectionOpen == False
 
-    @patch("dls_pmacremote.PmacSerialInterface._sendCommand")
+    @patch("dls_pmaclib.dls_pmacremote.PmacSerialInterface._sendCommand")
     @patch("serial.Serial")
     def test_connect_io_error(self, mock_serial, mock_sendcmd):
         mock_sendcmd.side_effect = IOError
@@ -89,7 +87,7 @@ class TestSerialInterface(unittest.TestCase):
         assert self.obj.isConnectionOpen == False
         assert self.obj.serial.close.called
 
-    @patch("dls_pmacremote.log")
+    @patch("dls_pmaclib.dls_pmacremote.log")
     def test_sendCommand_timeout(self, mock_log):
         self.obj.timeout = 0.5
         self.obj.n_timeouts = 0
